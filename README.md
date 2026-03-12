@@ -6,6 +6,12 @@
 
 Watch files. Run commands. Stay in flow.
 
+[![Crates.io](https://img.shields.io/crates/v/fyr)](https://crates.io/crates/fyr)
+[![Downloads](https://img.shields.io/crates/d/fyr)](https://crates.io/crates/fyr)
+[![License](https://img.shields.io/crates/l/fyr)](LICENSE)
+[![Build](https://github.com/opmr0/fyr/actions/workflows/release.yml/badge.svg)](https://github.com/opmr0/fyr/actions)
+[![Rust](https://img.shields.io/badge/rust-stable-orange)](https://www.rust-lang.org)
+
 ---
 
 fyr runs a command every time you save a file — debounced, clean, and instant. No duplicate runs, no leftover processes, no noise.
@@ -23,22 +29,20 @@ fyr runs a command every time you save a file — debounced, clean, and instant.
 **macOS / Linux**
 
 ```bash
-curl -sSf https://codeberg.org/opmr0/fyr/raw/branch/main/install.sh | sh
+curl -sSf https://raw.githubusercontent.com/opmr0/fyr/main/install.sh | sh
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-iwr https://codeberg.org/opmr0/fyr/raw/branch/main/install.ps1 -UseBasicParsing | iex
+iwr https://raw.githubusercontent.com/opmr0/fyr/main/install.ps1 -UseBasicParsing | iex
 ```
 
 **Via cargo**
 
-<!-- not now :)
 ```bash
 cargo install fyr
 ```
--->
 **From source**
 
 ```bash
