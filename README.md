@@ -242,7 +242,7 @@ Benchmarked on an Intel i7-9850H against the most popular file watchers.
 | chokidar      | 501ms      | 37.6 MB     | 1/50 ²                            |
 | nodemon       | 528ms      | 41.2 MB     | 102/50 ³                          |
 
-Versions tested: fyr v0.3.2, watchexec v2.5.0, chokidar v3.6.0, nodemon v3.1.14
+Versions tested: fyr v1.0.0, watchexec v2.5.0, chokidar v3.6.0, nodemon v3.1.14
 
 ¹ Intentional — fyr debounces and kills stale runs, so rapid saves collapse into one clean run per burst. Adjust with `-d`.
 ² chokidar's debounce is too aggressive for rapid changes, causing it to miss most events.
