@@ -1,10 +1,11 @@
+use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
-use colored::*;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use std::process;
 
+#[macro_use]
+mod macros;
 mod command;
 mod config;
 mod paths;
@@ -18,17 +19,7 @@ use paths::{resolve_paths, validate_paths};
 use tasks::run_task;
 use templates::get_template;
 
-pub const FYR: &str = "[fyr]";
 pub const DEBOUNCE_MS: u64 = 150;
-
-#[macro_export]
-macro_rules! log {
-    ($quiet:expr, $($arg:tt)*) => {
-        if !$quiet {
-            println!($($arg)*);
-        }
-    };
-}
 
 #[derive(Parser)]
 #[command(
@@ -113,14 +104,17 @@ enum TaskAction {
         name: String,
         new_name: String,
     },
+    Default {
+        name: String,
+    },
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<()> {
     let args = Cli::parse();
 
     match args.command {
         Some(Commands::Task { action }) => {
-            let mut config = load_config(true);
+            let mut config = load_config(true)?;
             match action {
                 TaskAction::Add {
                     name,
@@ -137,28 +131,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         },
                     );
                     confy::store("fyr", None, config)?;
-                    println!("{} task '{}' saved", FYR.yellow(), name);
+                    log!(false, "task '{}' saved", name);
                 }
                 TaskAction::Remove { name } => {
                     if config.tasks.remove(&name).is_some() {
                         confy::store("fyr", None, config)?;
-                        println!("{} task '{}' removed", FYR.yellow(), name);
+                        log!(false, "task '{}' removed", name);
                     } else {
-                        eprintln!("{} task '{}' not found", "Error:".red(), name);
-                        process::exit(1);
+                        return Err(anyhow!("task '{}' not found", name));
                     }
                 }
                 TaskAction::List => {
                     if config.tasks.is_empty() {
-                        println!("{} no saved tasks", FYR.yellow());
+                        log!(false, "no saved tasks");
                     } else {
-                        println!("{} saved tasks:", FYR.yellow());
+                        log!(false, "saved tasks:");
                         for (name, task) in &config.tasks {
-                            println!(
-                                "  {} — watch: {:?} | extensions: {:?} | run: \"{}\"",
+                            log!(
+                                false,
+                                "  {} --- watch: {:?} | extensions: {:?} | run: \"{}\"",
                                 name.cyan(),
                                 task.watch,
-                                task.extensions,
+                                task.extensions.clone().unwrap_or(Vec::new()),
                                 task.run.as_deref().unwrap_or("none")
                             );
                         }
@@ -170,10 +164,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     run,
                     extensions,
                 } => {
-                    let task = config.tasks.get_mut(&name).unwrap_or_else(|| {
-                        eprintln!("{} task '{}' not found", "Error:".red(), name);
-                        process::exit(1);
-                    });
+                    let task = config
+                        .tasks
+                        .get_mut(&name)
+                        .context(anyhow!("task '{}' not found", name))?;
                     if let Some(x) = run {
                         task.run = Some(x);
                     }
@@ -184,16 +178,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         task.watch = watch;
                     }
                     confy::store("fyr", None, config)?;
-                    println!("{} task '{}' updated", FYR.yellow(), name);
+                    log!(false, "task '{}' updated", name);
                 }
                 TaskAction::Rename { name, new_name } => {
-                    let task = config.tasks.remove(&name).unwrap_or_else(|| {
-                        eprintln!("{} task '{}' not found", "Error:".red(), name);
-                        process::exit(1);
-                    });
+                    let task = config
+                        .tasks
+                        .remove(&name)
+                        .context(anyhow!("task '{}' not found", name))?;
                     config.tasks.insert(new_name.clone(), task);
                     confy::store("fyr", None, config)?;
-                    println!("{} task '{}' renamed to '{}'", FYR.yellow(), name, new_name);
+                    log!(false, "task '{}' renamed to '{}'", name, new_name);
+                }
+                TaskAction::Default { name } => {
+                    if !config.tasks.contains_key(&name) {
+                        return Err(anyhow!("task '{}' not found", name));
+                    }
+                    config.default = Some(name.clone());
+                    confy::store("fyr", None, config)?;
+                    log!(false, "default task set to '{}'", name);
                 }
             }
         }
@@ -208,7 +210,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             quiet,
             no_clear,
         }) => {
-            let config = resolve_config(global, quiet);
+            let config = resolve_config(global, quiet)?;
             run_task(
                 &config, name, watch, run, extensions, debounce, quiet, no_clear,
             )?;
@@ -217,18 +219,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         None => {
             if args.watch.is_empty() && args.run.is_none() && args.extensions.is_none() {
                 let config = if args.global {
-                    log!(args.quiet, "{} loading global tasks", FYR.yellow());
+                    log!(args.quiet, "loading global tasks");
                     load_config(true)
                 } else if Path::new("fyr.toml").exists() {
-                    log!(args.quiet, "{} loading tasks from 'fyr.toml'", FYR.yellow());
+                    log!(args.quiet, "loading tasks from 'fyr.toml'");
                     load_config(false)
                 } else {
-                    eprintln!(
-                        "{} no 'fyr.toml' found — use -w/-e and -r to watch directly, or -g for global tasks",
-                        "Error:".red()
-                    );
-                    process::exit(1);
-                };
+                    return Err(anyhow!(
+                        "no 'fyr.toml' found, use -w/-e and -r to watch directly, or -g for global tasks",
+                    ));
+                }?;
                 run_task(
                     &config,
                     None,
@@ -241,22 +241,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )?;
             } else {
                 if args.watch.is_empty() && args.extensions.is_none() {
-                    eprintln!(
-                        "{} please provide paths with -w or extensions with -e",
-                        "Error:".red()
-                    );
-                    process::exit(1);
+                    return Err(anyhow!(
+                        "please provide paths with -w or extensions with -e"
+                    ));
                 }
-                let run_str = args.run.unwrap_or_else(|| {
-                    eprintln!("{} please provide a command with -r", "Error:".red());
-                    process::exit(1);
-                });
+                let run_str = args.run.context("please provide a command with -r")?;
                 let watch_strs = resolve_paths(args.watch, args.extensions);
                 let paths: Vec<&std::path::Path> =
                     watch_strs.iter().map(|s| std::path::Path::new(s)).collect();
-                let command = parse_command(&run_str);
-                validate_paths(&paths, args.quiet);
-                validate_command(&command, args.quiet);
+                let command = parse_command(&run_str)?;
+                validate_paths(&paths, args.quiet)?;
+                validate_command(&command, args.quiet)?;
                 watcher::start_watcher(
                     paths,
                     command,
@@ -271,15 +266,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some(Commands::Init { template }) => {
             let template_bytes = get_template(template);
             if Path::new("fyr.toml").exists() {
-                log!(args.quiet, "{} fyr.toml already exists", FYR.yellow());
+                log!(args.quiet, "fyr.toml already exists");
             } else {
                 let mut file = File::create("fyr.toml")?;
                 file.write_all(template_bytes)?;
-                log!(
-                    args.quiet,
-                    "{} fyr.toml created — edit it then run fyr",
-                    FYR.yellow()
-                );
+                log!(args.quiet, "fyr.toml created, edit it then run fyr",);
             }
         }
     }

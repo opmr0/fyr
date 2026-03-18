@@ -14,13 +14,13 @@ Watch files. Run commands. Stay in flow.
 
 ---
 
-fyr runs a command every time you save a file — debounced, clean, and instant. No duplicate runs, no leftover processes, no noise.
+fyr runs a command every time you save a file, debounced, clean, and instant. No duplicate runs, no leftover processes, no noise.
 
-- **Tasks** — save any watch+command pair by name and run it from anywhere with `fyr run <name>`
-- **Project config** — drop a `fyr.toml` in your repo and commit your setup alongside your code
-- **Language templates** — `fyr init rust`, `fyr init go`, and 14 more to get started in seconds
-- **Zero-config mode** — run `fyr` with no arguments and pick a task from an interactive menu
-- **Quiet mode** — strip fyr's output entirely so only your command speaks
+- **Tasks** - save any watch+command pair by name and run it from anywhere with `fyr run <name>`
+- **Project config** - drop a `fyr.toml` in your repo and commit your setup alongside your code
+- **Language templates** - `fyr init rust`, `fyr init go`, and 14 more to get started in seconds
+- **Zero-config mode** - run `fyr` with no arguments and pick a task from an interactive menu
+- **Quiet mode** - strip fyr's output entirely so only your command speaks
 
 ---
 
@@ -93,7 +93,7 @@ fyr -e js ts -r "node index.js"
 | `--extensions` | `-e`  | Watch files by extension             |
 | `--debounce`   | `-d`  | Debounce window in ms (default: 150) |
 | `--quiet`      | `-q`  | Suppress fyr's own log output        |
-| `--no-clear`   | —     | Don't clear the screen between runs  |
+| `--no-clear`   | -     | Don't clear the screen between runs  |
 
 ---
 
@@ -120,6 +120,7 @@ fyr task edit <name> -w <new paths>             # update watch paths
 fyr task edit <name> -r "<new command>"         # update command
 fyr task rename <name> <new_name>               # rename a task
 fyr task remove <name>                          # delete a task
+fyr task default                                # set a default task in the global config
 ```
 
 You can also provide `-e` / `--extensions` when adding or editing a task. You must provide `-w`, `-e`, or both.
@@ -142,13 +143,13 @@ fyr run build -r "cargo build"
 | `--debounce` | `-d`  | Debounce window in ms                      |
 | `--global`   | `-g`  | Use global tasks even if `fyr.toml` exists |
 | `--quiet`    | `-q`  | Suppress fyr's own log output              |
-| `--no-clear` | —     | Don't clear the screen between runs        |
+| `--no-clear` | -     | Don't clear the screen between runs        |
 
 ---
 
 ## Project Config
 
-`fyr` looks for a `fyr.toml` in your current directory first. If found, tasks are loaded from it instead of your global tasks — useful for committing your fyr setup alongside your project.
+`fyr` looks for a `fyr.toml` in your current directory first. If found, tasks are loaded from it instead of your global tasks, useful for committing your fyr setup alongside your project.
 
 ```bash
 fyr init           # create a blank fyr.toml
@@ -191,7 +192,7 @@ fyr
 
 ```
 [fyr] loading tasks from 'fyr.toml'
-[fyr] default task 'build' — running it
+[fyr] default task 'build', running it
 ```
 
 ```
@@ -223,7 +224,7 @@ fyr run build -q
 
 ## Debounce
 
-Editors often write to disk multiple times on a single save. fyr waits **150ms** after the last detected change before running — so you always get exactly one run per save, no matter how fast you type.
+Editors often write to disk multiple times on a single save. fyr waits **150ms** after the last detected change before running, so you always get exactly one run per save, no matter how fast you type.
 
 ```bash
 fyr -w src -r "cargo build" -d 500   # wait 500ms instead
@@ -244,7 +245,7 @@ Benchmarked on an Intel i7-9850H against the most popular file watchers.
 
 Versions tested: fyr v1.0.0, watchexec v2.5.0, chokidar v3.6.0, nodemon v3.1.14
 
-¹ Intentional — fyr debounces and kills stale runs, so rapid saves collapse into one clean run per burst. Adjust with `-d`.
+¹ Intentional, fyr debounces and kills stale runs, so rapid saves collapse into one clean run per burst. Adjust with `-d`.
 ² chokidar's debounce is too aggressive for rapid changes, causing it to miss most events.
 ³ nodemon fires duplicate events per change.
 
@@ -259,7 +260,7 @@ Requires `watchexec`, `nodemon`, or `chokidar` for comparison. The script auto-d
 ## How It Works
 
 1. fyr starts watching the paths you provide
-2. A file changes — fyr waits for the debounce window to pass
+2. A file changes, fyr waits for the debounce window to pass
 3. If the previous command is still running, fyr kills it
 4. fyr runs your command fresh
 
@@ -273,4 +274,4 @@ Found a bug or have an idea? Open an issue or submit a pull request.
 
 ## License
 
-MIT — [LICENSE](LICENSE)
+MIT - [LICENSE](LICENSE)

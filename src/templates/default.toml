@@ -1,0 +1,6 @@
+# optional: runs automatically in zero-config mode
+# default = "build"
+
+[tasks.build]
+watch = ["src"]
+run = "your command here"

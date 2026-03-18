@@ -1,36 +1,26 @@
-use crate::log;
-use colored::*;
 use shell_words::split;
-use std::process;
-
-
+use anyhow::{Context, Result, anyhow};
 pub struct ParsedCommand {
     pub cmd: String,
     pub args: Vec<String>,
 }
 
-
-pub fn parse_command(run: &str) -> ParsedCommand {
-    let parts = split(run).unwrap_or_else(|e| {
-        eprintln!("{} failed to parse command: {}", "Error:".red(), e);
-        process::exit(1);
-    });
+pub fn parse_command(run: &str) -> Result<ParsedCommand> {
+    let parts = split(run).context("failed to parse command")?;
     if parts.is_empty() {
-        eprintln!("{} empty command", "Error:".red());
-        process::exit(1);
+        return Err(anyhow!("empty command"));
     }
-    ParsedCommand {
+    Ok(ParsedCommand {
         cmd: parts[0].clone(),
         args: parts[1..].to_vec(),
-    }
+    })
 }
 
-pub fn validate_command(command: &ParsedCommand, quiet: bool) {
-    use crate::FYR;
-    log!(quiet, "{} checking command...", FYR.yellow());
+pub fn validate_command(command: &ParsedCommand, quiet: bool) -> Result<()> {
+    log!(quiet, "checking command...");
     if which::which(&command.cmd).is_err() {
-        eprintln!("{} command '{}' not found", "Error:".red(), command.cmd);
-        process::exit(1);
+        return Err(anyhow!("command '{}' not found", command.cmd));
     }
     log!(quiet, "  '{}' {}", command.cmd, "found".green());
+    Ok(())
 }

@@ -1,0 +1,11 @@
+default = "run"
+
+[tasks.run]
+watch = ["."]
+extensions = ["lua"]
+run = "lua main.lua"
+
+[tasks.test]
+watch = ["."]
+extensions = ["lua"]
+run = "busted"

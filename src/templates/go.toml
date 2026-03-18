@@ -1,0 +1,26 @@
+default = "run"
+
+[tasks.run]
+watch = ["."]
+extensions = ["go"]
+run = "go run ."
+
+[tasks.test]
+watch = ["."]
+extensions = ["go"]
+run = "go test ./..."
+
+[tasks.build]
+watch = ["."]
+extensions = ["go"]
+run = "go build -o app ."
+
+[tasks.lint]
+watch = ["."]
+extensions = ["go"]
+run = "golangci-lint run"
+
+[tasks.fmt]
+watch = ["."]
+extensions = ["go"]
+run = "gofmt -w ."

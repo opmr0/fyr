@@ -1,0 +1,16 @@
+default = "build"
+
+[tasks.build]
+watch = ["src"]
+extensions = ["java"]
+run = "javac src/*.java -d out"
+
+[tasks.run]
+watch = ["src"]
+extensions = ["java"]
+run = "java -cp out Main"
+
+[tasks.test]
+watch = ["src", "test"]
+extensions = ["java"]
+run = "mvn test"

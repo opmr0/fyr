@@ -1,0 +1,16 @@
+default = "run"
+
+[tasks.run]
+watch = ["."]
+extensions = ["rb"]
+run = "ruby main.rb"
+
+[tasks.test]
+watch = ["."]
+extensions = ["rb"]
+run = "bundle exec rspec"
+
+[tasks.lint]
+watch = ["."]
+extensions = ["rb"]
+run = "rubocop"

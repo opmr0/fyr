@@ -1,0 +1,11 @@
+default = "build"
+
+[tasks.build]
+watch = ["src"]
+extensions = ["scss", "sass"]
+run = "sass src/main.scss dist/style.css"
+
+[tasks.watch]
+watch = ["src"]
+extensions = ["css", "scss"]
+run = "sass --watch src:dist"

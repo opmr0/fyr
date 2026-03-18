@@ -1,0 +1,16 @@
+default = "run"
+
+[tasks.run]
+watch = ["Sources"]
+extensions = ["swift"]
+run = "swift run"
+
+[tasks.test]
+watch = ["Sources", "Tests"]
+extensions = ["swift"]
+run = "swift test"
+
+[tasks.build]
+watch = ["Sources"]
+extensions = ["swift"]
+run = "swift build"

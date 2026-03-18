@@ -1,8 +1,6 @@
-use crate::log;
 use crate::command::ParsedCommand;
-use crate::FYR;
-use chrono::Utc;
-use colored::*;
+use anyhow::{Context, Result};
+use chrono::Local;
 use notify::{Event, EventKind, RecursiveMode, Watcher, recommended_watcher};
 use std::path::Path;
 use std::process::{Child, Command};
@@ -11,6 +9,13 @@ use std::thread;
 use std::time::{Duration, Instant};
 use terminal_size::{Width, terminal_size};
 
+fn spawn_command(cmd: &str, args: &[String]) -> std::io::Result<Child> {
+    #[cfg(windows)]
+    return Command::new("cmd").args(["/C", cmd]).args(args).spawn();
+    #[cfg(not(windows))]
+    return Command::new(cmd).args(args).spawn();
+}
+
 pub fn start_watcher(
     paths: Vec<&Path>,
     command: ParsedCommand,
@@ -18,7 +23,7 @@ pub fn start_watcher(
     debounce: u64,
     quiet: bool,
     no_clear: bool,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let width = terminal_size()
         .map(|(Width(w), _)| w as usize)
         .unwrap_or(80)
@@ -26,26 +31,17 @@ pub fn start_watcher(
     let (tx, rx) = mpsc::channel::<notify::Result<Event>>();
     let mut watcher = recommended_watcher(tx)?;
 
-    log!(
-        quiet,
-        "{} watching — will run '{}' on changes",
-        FYR.yellow(),
-        run_str
-    );
+    log!(quiet, "watching, '{}' will run on changes", run_str);
 
     for path in &paths {
         watcher.watch(path, RecursiveMode::Recursive)?;
     }
 
-    log!(quiet, "{}", "_".repeat(width));
+    println!("{}", "_".repeat(width));
 
-    let mut last_run = Instant::now();
-    let mut child = Some(
-        Command::new(&command.cmd)
-            .args(&command.args)
-            .spawn()
-            .expect("failed to spawn command"),
-    );
+    let mut last_run = Instant::now() - Duration::from_millis(debounce + 1);
+    let mut child =
+        Some(spawn_command(&command.cmd, &command.args).context("failed to spawn the command")?);
 
     let (reaper_tx, reaper_rx) = mpsc::channel::<Child>();
     thread::spawn(move || {
@@ -76,25 +72,27 @@ pub fn start_watcher(
                 if no_clear {
                     log!(quiet, "{}", "_".repeat(width));
                 } else {
-                    clearscreen::clear().unwrap();
+                    clearscreen::clear().unwrap_or_else(|_| {
+                        print!("\x1B[2J\x1B[1;1H");
+                    });
                 }
                 log!(
                     quiet,
-                    "{} {} changed at {}",
-                    FYR.yellow(),
+                    "{} changed at {}",
                     file_name.cyan(),
-                    Utc::now().format("%H:%M:%S")
+                    Local::now().format("%H:%M:%S")
                 );
-                log!(quiet, "{}", "_".repeat(width));
+                println!("{}", "_".repeat(width));
 
-                child = Some(
-                    Command::new(&command.cmd)
-                        .args(&command.args)
-                        .spawn()
-                        .expect("failed to spawn command"),
-                );
+                match spawn_command(&command.cmd, &command.args) {
+                    Ok(c) => child = Some(c),
+                    Err(e) => {
+                        err!("failed to spawn '{}': {}", command.cmd, e);
+                        continue;
+                    }
+                };
             }
-            Err(e) => eprintln!("{} watch error: {:#?}", "Error:".red(), e),
+            Err(e) => err!("watch error: {:#?}", e),
             _ => {}
         }
     }

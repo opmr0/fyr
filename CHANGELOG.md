@@ -2,10 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ---
+
+## [1.1.0] - 2026-03-18
+
+### Added
+- `fyr task default <name>` — set the default task directly from the CLI without editing your toml
+- Language templates are now real `.toml` files embedded via `include_bytes!` — easy to read and diff
+
+### Fixed
+- **Task listing** — tasks now always display in alphabetical order instead of random HashMap order
+- **Quiet mode** — error messages now correctly respect the `-q` flag
+- Empty task list now returns a clear error instead of showing a broken interactive prompt
+
+### Changed
+- All internal errors now propagate via `anyhow` instead of calling `process::exit(1)` — cleaner exits and proper error messages with context
+- Timestamps in watcher output now use local time instead of UTC
+- `log!` and `err!` macros extracted into `macros.rs`
+
+### Removed
+- Path cache (`fyr_path_cache.json` in temp dir) — no longer written or read
 
 ## [1.0.0] — 2026-03-12
 
@@ -61,5 +77,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `process::exit(1)` on all error paths for clean shell integration
 
 ---
-
-[1.0.0]: https://codeberg.org/opmr0/fyr/releases/tag/v1.0.0

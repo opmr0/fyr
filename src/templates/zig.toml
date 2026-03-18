@@ -1,0 +1,16 @@
+default = "run"
+
+[tasks.run]
+watch = ["src"]
+extensions = ["zig"]
+run = "zig run src/main.zig"
+
+[tasks.test]
+watch = ["src"]
+extensions = ["zig"]
+run = "zig test src/main.zig"
+
+[tasks.build]
+watch = ["src"]
+extensions = ["zig"]
+run = "zig build"

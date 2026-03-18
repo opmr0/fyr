@@ -1,0 +1,16 @@
+default = "build"
+
+[tasks.build]
+watch = ["src", "include"]
+extensions = ["c", "h"]
+run = "gcc src/*.c -Iinclude -o app"
+
+[tasks.run]
+watch = ["src", "include"]
+extensions = ["c", "h"]
+run = "make && ./app"
+
+[tasks.clean]
+watch = ["src"]
+extensions = ["c", "h"]
+run = "make clean"

@@ -1,0 +1,16 @@
+default = "build"
+
+[tasks.build]
+watch = ["src", "include"]
+extensions = ["cpp", "hpp", "h"]
+run = "g++ src/*.cpp -Iinclude -o app"
+
+[tasks.run]
+watch = ["src", "include"]
+extensions = ["cpp", "hpp", "h"]
+run = "make && ./app"
+
+[tasks.test]
+watch = ["src", "tests"]
+extensions = ["cpp", "hpp"]
+run = "ctest --output-on-failure"

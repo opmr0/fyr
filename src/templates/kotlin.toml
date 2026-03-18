@@ -1,0 +1,11 @@
+default = "run"
+
+[tasks.run]
+watch = ["src"]
+extensions = ["kt"]
+run = "kotlinc src/*.kt -include-runtime -d app.jar && java -jar app.jar"
+
+[tasks.test]
+watch = ["src", "test"]
+extensions = ["kt"]
+run = "gradle test"

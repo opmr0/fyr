@@ -1,0 +1,16 @@
+default = "run"
+
+[tasks.run]
+watch = ["lib"]
+extensions = ["ex", "exs"]
+run = "mix run"
+
+[tasks.test]
+watch = ["lib", "test"]
+extensions = ["ex", "exs"]
+run = "mix test"
+
+[tasks.compile]
+watch = ["lib"]
+extensions = ["ex"]
+run = "mix compile"

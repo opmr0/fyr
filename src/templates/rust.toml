@@ -1,0 +1,26 @@
+default = "run"
+
+[tasks.run]
+watch = ["src"]
+extensions = ["rs"]
+run = "cargo run"
+
+[tasks.test]
+watch = ["src", "tests"]
+extensions = ["rs"]
+run = "cargo test"
+
+[tasks.build]
+watch = ["src"]
+extensions = ["rs"]
+run = "cargo build --release"
+
+[tasks.check]
+watch = ["src"]
+extensions = ["rs"]
+run = "cargo check"
+
+[tasks.lint]
+watch = ["src"]
+extensions = ["rs"]
+run = "cargo clippy"

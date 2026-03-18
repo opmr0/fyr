@@ -1,0 +1,26 @@
+default = "dev"
+
+[tasks.dev]
+watch = ["src"]
+extensions = ["js", "ts"]
+run = "node index.js"
+
+[tasks.test]
+watch = ["src", "tests"]
+extensions = ["js", "ts"]
+run = "npm test"
+
+[tasks.build]
+watch = ["src"]
+extensions = ["ts"]
+run = "tsc"
+
+[tasks.lint]
+watch = ["src"]
+extensions = ["js", "ts"]
+run = "eslint src"
+
+[tasks.format]
+watch = ["src"]
+extensions = ["js", "ts"]
+run = "prettier --write src"

@@ -1,0 +1,16 @@
+default = "run"
+
+[tasks.run]
+watch = ["src"]
+extensions = ["hs"]
+run = "cabal run"
+
+[tasks.test]
+watch = ["src", "test"]
+extensions = ["hs"]
+run = "cabal test"
+
+[tasks.build]
+watch = ["src"]
+extensions = ["hs"]
+run = "cabal build"

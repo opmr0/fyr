@@ -1,6 +1,6 @@
 [package]
 name = "fyr"
-version = "1.0.0"
+version = "1.1.0"
 description = "A fast, lightweight file watcher that automatically runs your command on every save"
 edition = "2024"
 license = "MIT"
@@ -25,3 +25,4 @@ dialoguer = "0.12.0"
 serial_test = "3.4.0"
 walkdir = "2.5.0"
 serde_json = "1.0.149"
+anyhow = "1.0.102"

@@ -1,0 +1,16 @@
+default = "run"
+
+[tasks.run]
+watch = ["."]
+extensions = ["php"]
+run = "php index.php"
+
+[tasks.test]
+watch = ["."]
+extensions = ["php"]
+run = "phpunit"
+
+[tasks.lint]
+watch = ["."]
+extensions = ["php"]
+run = "php -l index.php"

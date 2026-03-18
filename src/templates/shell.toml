@@ -1,0 +1,11 @@
+default = "run"
+
+[tasks.run]
+watch = ["."]
+extensions = ["sh"]
+run = "bash main.sh"
+
+[tasks.lint]
+watch = ["."]
+extensions = ["sh"]
+run = "shellcheck *.sh"
