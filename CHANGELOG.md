@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.1.0] - 2026-03-18
+## 1.2.0 - 2026-03-20
+
+### Added
+- Gitignore support — fyr now respects `.gitignore` when present, ignored paths will no longer trigger command runs
+- `--no-ignore` flag — opt out of `.gitignore` filtering when you need to watch ignored paths
+
+---
+
+## 1.1.0 - 2026-03-18
 
 ### Added
 - `fyr task default <name>` — set the default task directly from the CLI without editing your toml
@@ -23,7 +31,7 @@ All notable changes to this project will be documented in this file.
 ### Removed
 - Path cache (`fyr_path_cache.json` in temp dir) — no longer written or read
 
-## [1.0.0] — 2026-03-12
+## 1.0.0 — 2026-03-12
 
 ### Added
 

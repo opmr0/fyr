@@ -1,0 +1,26 @@
+# xeq.toml for xeq command runner https://github.com/opmr0/xeq
+
+[vars]
+flag = "-q"
+
+[fyr_dev]
+options = ["continue_on_err"] 
+run = [
+    "touch test.txt",
+    "cargo r -q -- run fyr_dev {{@flag}}",
+    "rm -rf test.txt"
+]
+
+[fyr_dev_tasks]
+run = [
+    "touch test.txt",
+    "cargo r -q -- run fyr_dev {{@flag}}",
+    "rm -rf test.txt"
+]
+
+[tag]
+run = [
+    "git tag {{1}}",
+    "git push origin {{1}}",
+]
+

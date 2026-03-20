@@ -35,6 +35,7 @@ pub fn run_task(
     debounce: u64,
     quiet: bool,
     no_clear: bool,
+    no_ignore: bool,
 ) -> Result<()> {
     let name = pick_task(config, name, quiet)?;
     let task = config
@@ -53,6 +54,6 @@ pub fn run_task(
     let command = parse_command(&run_str)?;
     validate_paths(&paths, quiet)?;
     validate_command(&command, quiet)?;
-    start_watcher(paths, command, &run_str, debounce, quiet, no_clear)?;
+    start_watcher(paths, command, &run_str, debounce, quiet, no_clear,no_ignore)?;
     Ok(())
 }

@@ -44,6 +44,8 @@ struct Cli {
     quiet: bool,
     #[arg(long, short)]
     no_clear: bool,
+    #[arg(long)]
+    no_ignore: bool,
 }
 
 #[derive(Subcommand)]
@@ -68,6 +70,8 @@ enum Commands {
         quiet: bool,
         #[arg(long, short)]
         no_clear: bool,
+        #[arg(long)]
+        no_ignore: bool,
     },
     Init {
         template: Option<String>,
@@ -209,10 +213,11 @@ fn main() -> Result<()> {
             global,
             quiet,
             no_clear,
+            no_ignore
         }) => {
             let config = resolve_config(global, quiet)?;
             run_task(
-                &config, name, watch, run, extensions, debounce, quiet, no_clear,
+                &config, name, watch, run, extensions, debounce, quiet, no_clear,no_ignore
             )?;
         }
 
@@ -238,6 +243,7 @@ fn main() -> Result<()> {
                     args.debounce,
                     args.quiet,
                     args.no_clear,
+                    args.no_ignore
                 )?;
             } else {
                 if args.watch.is_empty() && args.extensions.is_none() {
@@ -259,6 +265,7 @@ fn main() -> Result<()> {
                     args.debounce,
                     args.quiet,
                     args.no_clear,
+                    args.no_ignore
                 )?;
             }
         }

@@ -43,6 +43,7 @@ iwr https://raw.githubusercontent.com/opmr0/fyr/main/install.ps1 -UseBasicParsin
 ```bash
 cargo install fyr
 ```
+
 **From source**
 
 ```bash
@@ -86,14 +87,17 @@ fyr -e js ts -r "node index.js"
 
 ### Flags
 
-| Flag           | Short | Description                          |
-| -------------- | ----- | ------------------------------------ |
-| `--watch`      | `-w`  | Files or directories to watch        |
-| `--run`        | `-r`  | Command to run on change             |
-| `--extensions` | `-e`  | Watch files by extension             |
-| `--debounce`   | `-d`  | Debounce window in ms (default: 150) |
-| `--quiet`      | `-q`  | Suppress fyr's own log output        |
-| `--no-clear`   | -     | Don't clear the screen between runs  |
+| Flag           | Short | Description                                    |
+| -------------- | ----- | ---------------------------------------------- |
+| `--watch`      | `-w`  | Files or directories to watch                  |
+| `--run`        | `-r`  | Command to run on change                       |
+| `--extensions` | `-e`  | Watch files by extension                       |
+| `--debounce`   | `-d`  | Debounce window in ms (default: 150)           |
+| `--quiet`      | `-q`  | Suppress fyr's own log output                  |
+| `--no-clear`   | -     | Don't clear the screen between runs            |
+| `--no-ignore`  | -     | watch all files regardless of .gitignore rules |
+
+> fyr automatically ignore files thats in .gitignore. Use --no-ignore to watch all files regardless.
 
 ---
 
@@ -120,7 +124,7 @@ fyr task edit <name> -w <new paths>             # update watch paths
 fyr task edit <name> -r "<new command>"         # update command
 fyr task rename <name> <new_name>               # rename a task
 fyr task remove <name>                          # delete a task
-fyr task default                                # set a default task in the global config
+fyr task default <name>                         # set a default task in the global config
 ```
 
 You can also provide `-e` / `--extensions` when adding or editing a task. You must provide `-w`, `-e`, or both.
@@ -136,14 +140,15 @@ fyr run build -r "cargo build"
 
 ### Run flags
 
-| Flag         | Short | Description                                |
-| ------------ | ----- | ------------------------------------------ |
-| `--watch`    | `-w`  | Override watch paths                       |
-| `--run`      | `-r`  | Override command                           |
-| `--debounce` | `-d`  | Debounce window in ms                      |
-| `--global`   | `-g`  | Use global tasks even if `fyr.toml` exists |
-| `--quiet`    | `-q`  | Suppress fyr's own log output              |
-| `--no-clear` | -     | Don't clear the screen between runs        |
+| Flag          | Short | Description                                |
+| ------------- | ----- | ------------------------------------------ |
+| `--watch`     | `-w`  | Override watch paths                       |
+| `--run`       | `-r`  | Override command                           |
+| `--debounce`  | `-d`  | Debounce window in ms                      |
+| `--global`    | `-g`  | Use global tasks even if `fyr.toml` exists |
+| `--quiet`     | `-q`  | Suppress fyr's own log output              |
+| `--no-clear`  | -     | Don't clear the screen between runs        |
+| `--no-ignore` | -     | Don't respect .gitignore rules             |
 
 ---
 
@@ -174,11 +179,11 @@ run = "cargo test"
 
 ### Config resolution
 
-| Situation                          | What fyr loads          |
-| ---------------------------------- | ----------------------- |
-| `fyr.toml` exists in current dir   | Local tasks             |
-| No `fyr.toml`                      | Global tasks            |
-| `--global` / `-g` flag             | Global tasks (always)   |
+| Situation                        | What fyr loads        |
+| -------------------------------- | --------------------- |
+| `fyr.toml` exists in current dir | Local tasks           |
+| No `fyr.toml`                    | Global tasks          |
+| `--global` / `-g` flag           | Global tasks (always) |
 
 ---
 
@@ -236,12 +241,12 @@ fyr -w src -r "cargo build" -d 500   # wait 500ms instead
 
 Benchmarked on an Intel i7-9850H against the most popular file watchers.
 
-| Tool          | Startup    | Idle Memory | Commands fired (50 rapid changes) |
-| ------------- | ---------- | ----------- | --------------------------------- |
-| **fyr**       | **219ms**  | **7.6 MB**  | 27/50 ¹                           |
-| watchexec     | 238ms      | 13.5 MB     | 51/50                             |
-| chokidar      | 501ms      | 37.6 MB     | 1/50 ²                            |
-| nodemon       | 528ms      | 41.2 MB     | 102/50 ³                          |
+| Tool      | Startup   | Idle Memory | Commands fired (50 rapid changes) |
+| --------- | --------- | ----------- | --------------------------------- |
+| **fyr**   | **219ms** | **7.6 MB**  | 27/50 ¹                           |
+| watchexec | 238ms     | 13.5 MB     | 51/50                             |
+| chokidar  | 501ms     | 37.6 MB     | 1/50 ²                            |
+| nodemon   | 528ms     | 41.2 MB     | 102/50 ³                          |
 
 Versions tested: fyr v1.0.0, watchexec v2.5.0, chokidar v3.6.0, nodemon v3.1.14
 

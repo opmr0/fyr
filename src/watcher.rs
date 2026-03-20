@@ -1,6 +1,7 @@
 use crate::command::ParsedCommand;
 use anyhow::{Context, Result};
 use chrono::Local;
+use ignore::gitignore::{Gitignore, GitignoreBuilder};
 use notify::{Event, EventKind, RecursiveMode, Watcher, recommended_watcher};
 use std::path::Path;
 use std::process::{Child, Command};
@@ -23,6 +24,7 @@ pub fn start_watcher(
     debounce: u64,
     quiet: bool,
     no_clear: bool,
+    no_ignore: bool,
 ) -> Result<()> {
     let width = terminal_size()
         .map(|(Width(w), _)| w as usize)
@@ -51,6 +53,11 @@ pub fn start_watcher(
         }
     });
 
+    let root = std::env::current_dir().unwrap();
+    let mut builder = GitignoreBuilder::new(&root);
+    builder.add(root.join(".gitignore"));
+    let gitignore = builder.build().unwrap_or_else(|_| Gitignore::empty());
+
     for event in rx {
         match event {
             Ok(e) if matches!(e.kind, EventKind::Modify(_) | EventKind::Create(_)) => {
@@ -59,13 +66,24 @@ pub fn start_watcher(
                 }
                 last_run = Instant::now();
 
+                let full_path = match e.paths.first() {
+                    Some(p) => p.clone(),
+                    None => continue,
+                };
+
+                if gitignore
+                    .matched_path_or_any_parents(&full_path, full_path.is_dir())
+                    .is_ignore() && !no_ignore
+                {
+                    continue;
+                }
+
                 if let Some(c) = child.take() {
                     reaper_tx.send(c).ok();
                 }
-                let file_name = e
-                    .paths
-                    .first()
-                    .and_then(|p| p.file_name())
+
+                let file_name = full_path
+                    .file_name()
                     .map(|f| f.to_string_lossy().to_string())
                     .unwrap_or_default();
 
